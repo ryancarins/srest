@@ -5,8 +5,12 @@ export component AppWindow inherits Window {
     height: 720px;
     in-out property<string> request: "http://httpbin.org/get";
     in-out property<string> result: "No result";
+    in-out property<string> method: "GET";
+    in-out property<string> body: "{}";
     callback request-get-result();
     callback request-updated(string);
+    callback method-updated(string);
+    callback body-updated(string);
     VerticalLayout {
         spacing: 5px;
         padding: 5px;
@@ -15,8 +19,11 @@ export component AppWindow inherits Window {
             height: 10%;
             ComboBox {
                 model: ["GET", "POST", "PUT"];
-                current-value: "GET";
+                current-value: "\{root.method}";
                 width: 10%;
+                selected() => {
+                    root.method_updated(self.current-value);
+                }
             }
             TextEdit {
                 padding: 5px;
@@ -35,14 +42,29 @@ export component AppWindow inherits Window {
                 }
             }
         }
-        ScrollView {
-            enabled: true;
-            TextEdit {
-                text: "\{root.result}";
-                read-only: true;
-                font-size: 14px;
-                width: parent.width;
-                height: parent.height;
+        HorizontalLayout {
+            ScrollView {
+                enabled: true;
+                TextEdit {
+                    text: "\{root.body}";
+                    read-only: false;
+                    font-size: 14px;
+                    width: parent.width;
+                    height: parent.height;
+                    edited() => {
+                        root.body_updated(self.text);
+                    }
+                }
+            }
+            ScrollView {
+                enabled: true;
+                TextEdit {
+                    text: "\{root.result}";
+                    read-only: true;
+                    font-size: 14px;
+                    width: parent.width;
+                    height: parent.height;
+                }
             }
         }
     }
