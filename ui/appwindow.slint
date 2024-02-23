@@ -1,0 +1,49 @@
+import { Button, VerticalBox, ScrollView, TextEdit, ComboBox } from "std-widgets.slint";
+
+export component AppWindow inherits Window {
+    width: 1280px;
+    height: 720px;
+    in-out property<string> request: "http://httpbin.org/get";
+    in-out property<string> result: "No result";
+    callback request-get-result();
+    callback request-updated(string);
+    VerticalLayout {
+        spacing: 5px;
+        padding: 5px;
+        HorizontalLayout {
+            spacing: 5px;
+            height: 10%;
+            ComboBox {
+                model: ["GET", "POST", "PUT"];
+                current-value: "GET";
+                width: 10%;
+            }
+            TextEdit {
+                padding: 5px;
+                text: "\{root.request}";
+                font-size: 14px;
+                edited() => {
+                    root.request_updated(self.text);
+                }
+            }
+            Button {
+                padding: 5px;
+                primary: true;
+                text: "Run";
+                clicked => {
+                    root.request-get-result();
+                }
+            }
+        }
+        ScrollView {
+            enabled: true;
+            TextEdit {
+                text: "\{root.result}";
+                read-only: true;
+                font-size: 14px;
+                width: parent.width;
+                height: parent.height;
+            }
+        }
+    }
+}
