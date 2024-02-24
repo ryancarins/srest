@@ -6,7 +6,7 @@ use slint::SharedString;
 slint::include_modules!();
 
 fn handle_request(method: &str, query: &str, body: String) -> String {
-    let mut result: Result<Response, reqwest::Error>;
+    let result: Result<Response, reqwest::Error>;
     let client = Client::new();
     match method {
         "GET" => {
