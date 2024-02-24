@@ -38,9 +38,21 @@ async fn handle_request(method: &str, query: &str, body: String) -> String {
     to_string_pretty(&json).unwrap_or(body)
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 #[tokio::main]
-async fn main() -> Result<(), slint::PlatformError> {
-    let ui = AppWindow::new()?;
+async fn main() {
+    async_main().await;
+}
+
+#[cfg_attr(target_arch = "wasm32",
+wasm_bindgen::prelude::wasm_bindgen(start))]
+#[cfg(target_arch = "wasm32")]
+async fn main() {
+    async_main().await;
+}
+
+async fn async_main() {
+    let ui = AppWindow::new().unwrap();
 
     ui.on_request_get_result({
         let ui_handle = ui.as_weak();
@@ -80,5 +92,5 @@ async fn main() -> Result<(), slint::PlatformError> {
         }
     });
 
-    ui.run()
+    ui.run().unwrap();
 }
