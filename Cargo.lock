@@ -3633,19 +3633,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "slint-testing"
-version = "0.1.0"
-dependencies = [
- "reqwest",
- "serde_json",
- "slint",
- "slint-build",
- "tokio",
- "wasm-bindgen",
- "wasm-bindgen-futures",
-]
-
-[[package]]
 name = "slotmap"
 version = "1.0.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3771,6 +3758,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "076e103ed41b9864aa838287efe5f4e3a7a0362dd00671ae62a212e5e4612da2"
 dependencies = [
  "pin-utils",
+]
+
+[[package]]
+name = "srest"
+version = "0.1.0"
+dependencies = [
+ "reqwest",
+ "serde_json",
+ "slint",
+ "slint-build",
+ "tokio",
+ "wasm-bindgen",
+ "wasm-bindgen-futures",
 ]
 
 [[package]]
