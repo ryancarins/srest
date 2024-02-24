@@ -1,4 +1,4 @@
-import { Button, VerticalBox, ScrollView, TextEdit, ComboBox } from "std-widgets.slint";
+import { Button, VerticalBox, ScrollView, TextEdit, ComboBox, TabWidget } from "std-widgets.slint";
 
 export component AppWindow inherits Window {
     preferred-width: 1280px;
@@ -43,19 +43,46 @@ export component AppWindow inherits Window {
             }
         }
         HorizontalLayout {
-            ScrollView {
-                enabled: true;
-                TextEdit {
-                    text: "\{root.body}";
-                    read-only: false;
-                    width: parent.width;
-                    height: parent.height;
-                    edited() => {
-                        root.body_updated(self.text);
+            if (root.method != "GET"): TabWidget {
+                width: 50%;
+                Tab {
+                    title: "Body";
+                    VerticalLayout {
+                        spacing: 5px;
+                        padding: 5px;
+                        ScrollView {
+                            enabled: true;
+                            TextEdit {
+                                text: "\{root.body}";
+                                read-only: false;
+                                width: parent.width;
+                                height: parent.height;
+                                edited() => {
+                                    root.body_updated(self.text);
+                                }
+                            }
+                        }
+                    }
+                }
+                Tab {
+                    title: "Query Params";
+                    VerticalLayout {
+                        spacing: 5px;
+                        padding: 5px;
+                        ScrollView {
+                            enabled: true;
+                            TextEdit {
+                                text: "Not yet implemented, will take key value pairs";
+                                read-only: false;
+                                width: parent.width;
+                                height: parent.height;
+                            }
+                        }
                     }
                 }
             }
             ScrollView {
+                preferred-width: 100%;
                 enabled: true;
                 TextEdit {
                     text: "\{root.result}";
