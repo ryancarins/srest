@@ -1,50 +1,45 @@
-use std::io::Read;
-use reqwest::blocking::Response;
-use reqwest::blocking::Client;
-use serde_json::Value;
+use reqwest::Response;
+use reqwest::Client;
+use serde_json::{to_string_pretty, Value};
 use slint::SharedString;
 slint::include_modules!();
 
-fn handle_request(method: &str, query: &str, body: String) -> String {
+async fn handle_request(method: &str, query: &str, body: String) -> String {
     let result: Result<Response, reqwest::Error>;
     let client = Client::new();
     match method {
         "GET" => {
-            result = client.get(query).send();
+            result = client.get(query).send().await;
         },
         "POST" => {
-            result = client.post(query).body(body).header("Content-Type", "application/json").send();
+            result = client.post(query).body(body).header("Content-Type", "application/json").send().await;
         },
         "PUT" => {
-            result = client.put(query).body(body).send();
+            result = client.put(query).body(body).send().await;
         },
         _ => {panic!()}
     }
 
-    if let Err(err) = result {
-        return err.to_string();
-    }
-    let mut res = result.unwrap();
+    let response = match result {
+        Err(err) => return err.to_string(),
+        Ok(res) => res
+    };
 
-    let mut body = String::new();
-    println!("{}", method);
-    if res.read_to_string(&mut body).is_err() {
-        return "Failed to load result to string".to_string();
-    }
-    let json: Result<Value, serde_json::Error> = serde_json::from_str(body.as_str());
-    if json.is_err() {
-        return body;
-    }
-    let pretty = serde_json::to_string_pretty(&json.unwrap());
+    let body = match response.text().await {
+        Ok(res) => res,
+        Err(_) => return "Could not convert result to text".to_string()
+    };
 
-    if pretty.is_err() {
-        return body;
-    }
+    let json: Value = match serde_json::from_str(body.as_str()) {
+        Ok(result) => result,
+        Err(_) => return body
+    };
 
-    pretty.unwrap()
+    to_string_pretty(&json).unwrap_or(body)
 }
 
-fn main() -> Result<(), slint::PlatformError> {
+#[tokio::main]
+async fn main() -> Result<(), slint::PlatformError> {
     let ui = AppWindow::new()?;
 
     ui.on_request_get_result({
@@ -54,8 +49,10 @@ fn main() -> Result<(), slint::PlatformError> {
             let method = ui.get_method();
             let query = ui.get_request();
             let body = ui.get_body();
-            let body = handle_request(&method, &query, body.to_string());
-            ui.set_result(SharedString::from(body));
+            slint::spawn_local(async move {
+                let body = handle_request(&method, &query, body.to_string()).await;
+                ui.set_result(SharedString::from(body));
+            }).unwrap();
         }
     });
 
